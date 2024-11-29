@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perhitungan Gaji Karyawan</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f4f4f9;
+      }
+      .container {
+        max-width: 600px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+      h1 {
+        text-align: center;
+        color: #333;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input,
+      select,
+      button {
+        width: 100%;
+        padding: 10px;
+        margin: 5px 0 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      button {
+        background-color: #28a745;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #218838;
+      }
+      .result {
+        background: #e9ecef;
+        padding: 15px;
+        margin-top: 20px;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Perhitungan Gaji Karyawan</h1>
+      <div class="form-group">
+        <label for="golongan">Golongan Karyawan</label>
+        <select id="golongan">
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="jam_lembur">Jumlah Jam Lembur</label>
+        <input type="number" id="jam_lembur" placeholder="Masukkan jumlah jam lembur" />
+      </div>
+      <button onclick="hitungGaji()">Hitung Gaji</button>
+      <div id="result" class="result" style="display: none"></div>
+    </div>
+
+    <script>
+      async function hitungGaji() {
+        const golongan = document.getElementById("golongan").value;
+        const jam_lembur = document.getElementById("jam_lembur").value;
+
+        if (!jam_lembur || jam_lembur < 0) {
+          alert("Jumlah jam lembur harus valid.");
+          return;
+        }
+
+        const response = await fetch("/hitung", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ golongan, jam_lembur }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById("result").style.display = "block";
+          document.getElementById("result").innerHTML = `
+                    <p><strong>Gaji Pokok:</strong> ${data.gaji_pokok}</p>
+                    <p><strong>Gaji Lembur:</strong> ${data.gaji_lembur}</p>
+                    <p><strong>Total Penghasilan:</strong> ${data.total_penghasilan}</p>
+                `;
+        } else {
+          const error = await response.json();
+          alert(error.error || "Terjadi kesalahan.");
+        }
+      }
+    </script>
+  </body>
+</html>
